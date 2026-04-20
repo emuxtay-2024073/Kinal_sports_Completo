@@ -1,5 +1,12 @@
-export const errorHandler = (err, req, res) => {
-  console.error(`Error in Admin Server: ${err.message}`);
+export const errorHandler = (err, req, res, next) => {
+  const readableMessage =
+    typeof err?.message === 'string'
+      ? err.message
+      : typeof err === 'string'
+      ? err
+      : JSON.stringify(err);
+
+  console.error(`Error in Admin Server: ${readableMessage}`);
   console.error(`Stack trace: ${err.stack}`);
   console.error(`Request: ${req.method} ${req.path}`);
 
@@ -62,13 +69,29 @@ export const errorHandler = (err, req, res) => {
     });
   }
 
+  // Errores de Cloudinary (firma inválida / credenciales)
+  if (
+    readableMessage?.includes('Invalid Signature') ||
+    readableMessage?.includes('api_key') ||
+    readableMessage?.includes('api_secret')
+  ) {
+    return res.status(502).json({
+      success: false,
+      message: 'Error de configuración de Cloudinary: firma inválida o credenciales incorrectas',
+      error: 'CLOUDINARY_CONFIGURATION_ERROR',
+      ...(process.env.NODE_ENV === 'development' && {
+        details: readableMessage,
+      }),
+    });
+  }
+
   // Error por defecto del servidor
   res.status(500).json({
     success: false,
     message: 'Error interno del servidor',
     error: 'INTERNAL_SERVER_ERROR',
     ...(process.env.NODE_ENV === 'development' && {
-      details: err.message,
+      details: readableMessage,
       stack: err.stack,
     }),
   });

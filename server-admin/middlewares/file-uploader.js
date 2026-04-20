@@ -7,10 +7,21 @@ import { extname } from 'path';
 
 dotenv.config();
 
+const normalizeEnv = (value) =>
+    typeof value === 'string' ? value.trim().replace(/^['\"]|['\"]$/g, '') : value;
+
+const cloudName = normalizeEnv(process.env.CLOUDINARY_CLOUD_NAME);
+const apiKey = normalizeEnv(process.env.CLOUDINARY_API_KEY);
+const apiSecret = normalizeEnv(process.env.CLOUDINARY_API_SECRET);
+
+if (!cloudName || !apiKey || !apiSecret) {
+    throw new Error('Faltan variables de entorno de Cloudinary (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET).');
+}
+
 cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret
 });
 
 const MIMETYPES = [

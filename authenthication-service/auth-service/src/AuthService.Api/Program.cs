@@ -37,7 +37,7 @@ builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddRateLimitingPolicies();
 
 // Add security services
-builder.Services.AddSecurityPolicies(builder.Configuration);
+builder.Services.AddSecurityPolicies(builder.Configuration, builder.Environment);
 builder.Services.AddSecurityOptions();
 
 var app = builder.Build();
@@ -131,7 +131,7 @@ using (var scope = app.Services.CreateScope())
         await context.Database.EnsureCreatedAsync();
 
         logger.LogInformation("Base de datos lista. Ejecutando datos semilla...");
-        await DataSeeder.SeedAsync(context);
+        await DataSeeder.SeedAsync(context, app.Environment.IsDevelopment());
 
         logger.LogInformation("Inicialización de base de datos completada exitosamente");
     }

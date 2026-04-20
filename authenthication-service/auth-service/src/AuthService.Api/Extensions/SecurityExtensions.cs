@@ -9,7 +9,7 @@ public static class SecurityExtensions
     private static readonly string[] AllowedHttpMethods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"];
     private static readonly string[] AdminHttpMethods = ["GET", "POST", "PUT", "DELETE"];
     private static readonly string[] AdminAllowedHeaders = ["Content-Type", "Authorization"];
-    public static IServiceCollection AddSecurityPolicies(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddSecurityPolicies(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
     {
         // Configurar CORS
         services.AddCors(options =>
@@ -40,7 +40,8 @@ public static class SecurityExtensions
         });
 
         // Configurar Data Protection
-        var keysDirectory = new DirectoryInfo("./keys");
+        var keysPath = Path.Combine(environment.ContentRootPath, "keys", environment.EnvironmentName.ToLowerInvariant());
+        var keysDirectory = new DirectoryInfo(keysPath);
         if (!keysDirectory.Exists)
         {
             keysDirectory.Create();
@@ -51,8 +52,6 @@ public static class SecurityExtensions
                 .SetApplicationName("AuthDotnetApi")
                 .SetDefaultKeyLifetime(TimeSpan.FromDays(90));
 
-        // En producción, configurar encriptación con certificado
-        var environment = services.BuildServiceProvider().GetRequiredService<IWebHostEnvironment>();
         if (environment.IsProduction())
         {
             // En producción deberías usar un certificado real
@@ -63,15 +62,8 @@ public static class SecurityExtensions
             }
             // En Linux/macOS en producción, usar certificados o Azure Key Vault
         }
-        else
-        {
-            // En desarrollo, usar DPAPI (solo Windows) o sin encriptación
-            if (OperatingSystem.IsWindows())
-            {
-                dataProtectionBuilder.ProtectKeysWithDpapi();
-            }
-            // En Linux/macOS en desarrollo, las claves no se encriptan (solo para desarrollo)
-        }
+        // En desarrollo no se cifra con DPAPI para evitar fallos al cambiar de usuario/permisos
+        // (e.g. ejecutar IDE como admin y luego como usuario normal).
 
         // Configurar Antiforgery (CSRF Protection)
         services.AddAntiforgery(options =>

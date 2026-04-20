@@ -14,7 +14,7 @@ export const validateCreateField = [
   body('fieldType')
     .notEmpty()
     .withMessage('El tipo de campo es requerido')
-    .isIn(['NATURAL', 'SINTETICA', 'CONCRETO'])
+    .isIn(['NATURAL', 'SINTETICA', 'CEMENTO', 'CONCRETO'])
     .withMessage('Tipo de superficie no válida'),
   body('capacity')
     .notEmpty()
