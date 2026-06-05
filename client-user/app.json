@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "client-user",
+    "slug": "client-user",
+    "sdkVersion": "55.0.0",
+    "orientation": "portrait",
+    "platforms": ["ios", "android", "web"],
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#08316D"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundColor": "#08316D"
+      }
+    }
+  }
+}

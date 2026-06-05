@@ -1,0 +1,11 @@
+node_modules/
+.pnpm-store/
+
+bin/
+obj/
+
+.expo/
+dist/
+
+*.log
+logs/
